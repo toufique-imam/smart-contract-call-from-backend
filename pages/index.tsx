@@ -30,10 +30,6 @@ export default function Home({
   const [addresses, setAddresses] = useState<any>([])
   async function getAddresses() {
     const response = await makeGetRequest('/api/get_ids')
-    if (!response.OK) {
-      return;
-    }
-    console.log(response)
     try {
       const responseData: Array<any> = await parseServerResponse(response)
       console.log(responseData)
@@ -52,8 +48,10 @@ export default function Home({
     try {
       const response = await makePostRequest('/api/make_transaction', JSON.stringify(body))
       await parseServerResponse(response)
+      alert("Transaction made")
     } catch (e) {
       console.error(e)
+      alert("Error making transaction")
     }
   }
   useEffect(() => {
@@ -76,16 +74,17 @@ export default function Home({
             for instructions.
           </h2>
         )}
-        {addresses.map((address: any) => {
-          
-            <div key={address._id}>
-              <p>{address._id}</p>
-              <p>{address.pub_address}</p>
-              <button onClick={() => makeTransaction(address.pub_address, 100)}>Send 100</button>
-            </div>
-          
+        {
+          addresses.map((address: any) => {
+            return (
+              <div>
+                <h3>{address._id}</h3>
+                <button onClick={() => makeTransaction(address._id, 10)}>Send 10</button>
+              </div>
+            )
+          }
+          )
         }
-        )}
       </main>
     </div>
   )

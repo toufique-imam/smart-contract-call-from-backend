@@ -17,6 +17,7 @@ export default async function handler(
             const document = {}
             const transferFromCollection = db.collection(TransferFromCollection)
             const documents = await transferFromCollection.find(document, { session }).toArray()
+            console.log(documents)
             res.status(200).json({
                 "result": documents,
             })

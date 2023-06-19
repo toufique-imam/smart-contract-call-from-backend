@@ -14,23 +14,28 @@ export default async function handler(
         res.status(405).json({ error: 'Method not allowed' });
         return;
     }
-    const { from, value, transactionHash } = req.body
+    /*
+          id: id,
+      amount: amount,
+      transactionHash: "0x1234567890",
+      */
+    const { id, amount, transactionHash } = req.body
     const to = "0x7F568433F1BD0865Cb8B14314F6f7C278660De5d"
-    if (!from || !to || !value) {
+    if (!id || !to || !amount) {
         res.status(405).json("request format error")
         return
     }
-    console.log("from: ", from, " to: ", to, " value: ", value, " transactionHash: ", transactionHash)
+    console.log("from: ", id, " to: ", to, " value: ", amount, " transactionHash: ", transactionHash)
 
     const client = await clientPromise;
     const session = client.startSession();
     try {
-        let reward = Number(value) //wei to gwei
+        let reward = Number(amount) //wei to gwei
         await session.withTransaction(async () => {
             const db = client.db(DBName)
             const document = {
                 to: to,
-                from: from,
+                from: id,
                 value: reward,
                 transactionHash: transactionHash
             }
