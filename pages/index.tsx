@@ -3,7 +3,7 @@ import clientPromise from '../lib/mongodb'
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react'
 import { makeGetRequest, makePostRequest, parseServerResponse } from '../utils/MongodbUtils'
-
+import 'bootstrap/dist/css/bootstrap.css'
 type ConnectionStatus = {
   isConnected: boolean
 }
@@ -28,27 +28,37 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [addresses, setAddresses] = useState<any>([])
+  const [transactions, setTransactions] = useState<any>([])
   async function getAddresses() {
     const response = await makeGetRequest('/api/get_ids')
     try {
       const responseData: Array<any> = await parseServerResponse(response)
-      console.log(responseData)
       setAddresses(responseData)
     } catch (e) {
       console.error(e)
     }
-
+  }
+  async function getTransaction() {
+    const response = await makeGetRequest('/api/get_transaction')
+    try {
+      const responseData: Array<any> = await parseServerResponse(response)
+      setTransactions(responseData)
+    } catch (e) {
+      console.error(e)
+    }
   }
   async function makeTransaction(id: String, amount: number) {
     const body = {
       id: id,
       amount: amount,
-      transactionHash: "0x1234567890",
+      //generate random hash
+      transactionHash: Math.random().toString(36).substring(7),
     }
     try {
       const response = await makePostRequest('/api/make_transaction', JSON.stringify(body))
       await parseServerResponse(response)
       alert("Transaction made")
+      getTransaction()
     } catch (e) {
       console.error(e)
       alert("Error making transaction")
@@ -56,6 +66,7 @@ export default function Home({
   }
   useEffect(() => {
     getAddresses()
+    getTransaction()
   }, [])
   return (
     <div className="container">
@@ -74,17 +85,47 @@ export default function Home({
             for instructions.
           </h2>
         )}
-        {
-          addresses.map((address: any) => {
-            return (
-              <div>
-                <h3>{address._id}</h3>
-                <button onClick={() => makeTransaction(address._id, 10)}>Send 10</button>
-              </div>
-            )
-          }
-          )
-        }
+        <h1 className='title'> Make Transaction </h1>
+        <table className='table  m-2 p-2'>
+          <thead>
+            <tr>
+              <td scope='col'> Address </td>
+              <td scope='col'> Action </td>
+            </tr>
+          </thead>
+          <tbody>
+            {addresses.map((e: any) => (
+              <tr key={e._id}>
+                <td>{e.pub_address}</td>
+                <td>
+                  <button className='btn btn-primary'  onClick={() => makeTransaction(e.pub_address, e.amount)}>Send {e.amount}</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h1 className='title'> Past Transactions </h1>
+        <table className='table  m-2 p-2'>
+          <thead>
+            <tr>
+              <td scope='col'> FROM </td>
+              <td scope='col'> TO </td>
+              <td scope='col'> amount </td>
+              <td scope='col'> txHash </td>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((e: any) => (
+              <tr key={e._id}>
+                <td>{e.from}</td>
+                <td>{e.to}</td>
+                <td>{e.value}</td>
+                <td>{e.transactionHash}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </main>
     </div>
   )

@@ -3,7 +3,7 @@ import clientPromise from "../../lib/mongodb";
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const DBName = "contract_transfer"
-const TransferFromCollection = "transfer_from"
+const TransferCollection = "transfers"
 
 export default async function handler(
     req: NextApiRequest,
@@ -15,7 +15,7 @@ export default async function handler(
         await session.withTransaction(async () => {
             const db = client.db(DBName)
             const document = {}
-            const transferFromCollection = db.collection(TransferFromCollection)
+            const transferFromCollection = db.collection(TransferCollection)
             const documents = await transferFromCollection.find(document, { session }).toArray()
             res.status(200).json({
                 "result": documents,
