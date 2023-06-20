@@ -17,14 +17,15 @@ async function make_transaction(from: string, to: string, private_key: string, a
         to: to,
         value: ethers.parseUnits("0.001", "ether"),
     });
-    
     console.log("Mining transaction...");
     console.log(`https://${network_explorer}/tx/${tx.hash}`);
     // Waiting for the transaction to be mined
+    return tx.hash;
+    //besikhon dhore rakle 504 error dey
     const receipt = await tx.wait();
     // The transaction is now on chain!
     console.log(`Mined in block ${receipt?.blockNumber}`);
-    return tx.hash;
+    
 }
 export default async function handler(
     req: NextApiRequest,
