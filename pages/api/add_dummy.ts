@@ -14,28 +14,12 @@ export default async function handler(
     //add dummy data
     const dummyData = [
         {
-            "pub_address": "0x1F568433F1BD0865Cb8B14314F6f7C278660De5d",
-            "amount": Math.random() * 1000,
+            "pub_address": "0x08188D0D21fFa2A758Bc8F161e9781f932Af0dAb",
+            "private_key": "3b7f2f5d8544268432152f336698c1852ac47a84e11f9354fd255d7b55b91923"
         },
         {
-            "amount": Math.random() * 1000,
-            "pub_address": "0x2F568433F1BD0865Cb8B14314F6f7C278660De5d",
-        },
-        {
-            "amount": Math.random() * 1000,
-            "pub_address": "0x3F568433F1BD0865Cb8B14314F6f7C278660De5d",
-        },
-        {
-            "amount": Math.random() * 1000,
-            "pub_address": "0x4F568433F1BD0865Cb8B14314F6f7C278660De5d",
-        },
-        {
-            "amount": Math.random() * 1000,
-            "pub_address": "0x5F568433F1BD0865Cb8B14314F6f7C278660De5d",
-        },
-        {
-            "amount": Math.random() * 1000,
-            "pub_address": "0x6F568433F1BD0865Cb8B14314F6f7C278660De5d",
+            "private_key": "081f7309d3573c83419571577e155ba5f6bf3f7a01c2f308e5886505c542c239",
+            "pub_address": "0x11c082BE62016c19a532c207199C6E4a242B06D7",
         }
     ]
     try {

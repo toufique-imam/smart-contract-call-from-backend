@@ -51,13 +51,12 @@ export default function Home({
     const body = {
       id: id,
       amount: amount,
-      //generate random hash
-      transactionHash: Math.random().toString(36).substring(7),
     }
     try {
       const response = await makePostRequest('/api/make_transaction', JSON.stringify(body))
       await parseServerResponse(response)
       alert("Transaction made")
+      getAddresses()
       getTransaction()
     } catch (e) {
       console.error(e)
@@ -90,15 +89,19 @@ export default function Home({
           <thead>
             <tr>
               <td scope='col'> Address </td>
-              <td scope='col'> Action </td>
+              <td scope='col'> P.Address </td>
+              <td scope='col'> Balance </td>
+              <td scope='col'> Send </td>
             </tr>
           </thead>
           <tbody>
             {addresses.map((e: any) => (
               <tr key={e._id}>
                 <td>{e.pub_address}</td>
+                <td>{e.private_key.slice(0,4)+"..."+e.private_key.slice(-4)}</td>
+                <td>{e.balance}</td>
                 <td>
-                  <button className='btn btn-primary'  onClick={() => makeTransaction(e.pub_address, e.amount)}>Send {e.amount}</button>
+                    <button className='btn btn-primary' onClick={() => makeTransaction(e.pub_address, 0.001)}>Send</button>
                 </td>
               </tr>
             ))}
@@ -118,8 +121,8 @@ export default function Home({
           <tbody>
             {transactions.map((e: any) => (
               <tr key={e._id}>
-                <td>{e.from}</td>
-                <td>{e.to}</td>
+                <td>{e.from.slice(0,4)+'...'+e.from.slice(-4)}</td>
+                <td>{e.to.slice(0, 4) + '...' +e.to.slice(-4)}</td>
                 <td>{e.value}</td>
                 <td>{e.transactionHash}</td>
               </tr>
