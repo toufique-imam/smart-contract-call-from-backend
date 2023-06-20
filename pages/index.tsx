@@ -29,22 +29,30 @@ export default function Home({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [addresses, setAddresses] = useState<any>([])
   const [transactions, setTransactions] = useState<any>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   async function getAddresses() {
+    setIsLoading(true)
     const response = await makeGetRequest('/api/get_ids')
     try {
       const responseData: Array<any> = await parseServerResponse(response)
       setAddresses(responseData)
     } catch (e) {
       console.error(e)
+    }finally{
+      setIsLoading(false)
     }
   }
   async function getTransaction() {
+    setIsLoading(true)
     const response = await makeGetRequest('/api/get_transaction')
     try {
       const responseData: Array<any> = await parseServerResponse(response)
       setTransactions(responseData)
     } catch (e) {
       console.error(e)
+    }finally{
+      setIsLoading(false)
     }
   }
   async function makeTransaction(id: String, amount: number) {
@@ -52,6 +60,7 @@ export default function Home({
       id: id,
       amount: amount,
     }
+    setIsLoading(true)
     try {
       const response = await makePostRequest('/api/make_transaction', JSON.stringify(body))
       await parseServerResponse(response)
@@ -61,6 +70,8 @@ export default function Home({
     } catch (e) {
       console.error(e)
       alert("Error making transaction")
+    } finally {
+      setIsLoading(false)
     }
   }
   useEffect(() => {
@@ -84,6 +95,11 @@ export default function Home({
             for instructions.
           </h2>
         )}
+        {isLoading ?
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          : <></>}
         <h1 className='title'> Make Transaction </h1>
         <table className='table  m-2 p-2'>
           <thead>
