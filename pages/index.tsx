@@ -27,22 +27,10 @@ export const getServerSideProps: GetServerSideProps<
 export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [addresses, setAddresses] = useState<any>([])
   const [transactions, setTransactions] = useState<any>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [userInputN, setUserInputN] = useState<number>(1)
 
-  async function getAddresses() {
-    setIsLoading(true)
-    const response = await makeGetRequest('/api/get_ids')
-    try {
-      const responseData: Array<any> = await parseServerResponse(response)
-      setAddresses(responseData)
-    } catch (e) {
-      console.error(e)
-    }finally{
-      setIsLoading(false)
-    }
-  }
   async function getTransaction() {
     setIsLoading(true)
     const response = await makeGetRequest('/api/get_transaction')
@@ -51,21 +39,45 @@ export default function Home({
       setTransactions(responseData)
     } catch (e) {
       console.error(e)
-    }finally{
+    } finally {
       setIsLoading(false)
     }
   }
-  async function makeTransaction(id: String, amount: number) {
+  function handleUserInputN(e: any) {
+    setUserInputN(e.target.value)
+  }
+
+  async function makeTransaction() {
+    if (userInputN < 1 || userInputN > 15) {
+      alert("Please enter a value between 1 and 15")
+      return
+    }
+    console.log(userInputN)
     const body = {
-      id: id,
-      amount: amount,
+      n: userInputN
     }
     setIsLoading(true)
     try {
       const response = await makePostRequest('/api/make_transaction', JSON.stringify(body))
       await parseServerResponse(response)
       alert("Transaction made")
-      getAddresses()
+      // getAddresses()
+      getTransaction()
+    } catch (e) {
+      console.error(e)
+      alert("Error making transaction")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  async function deleteTransactions() {
+    const body = {
+    }
+    setIsLoading(true)
+    try {
+      const response = await makePostRequest('/api/delete_transaction', JSON.stringify(body))
+      await parseServerResponse(response)
+      alert("Transactions deleted")
       getTransaction()
     } catch (e) {
       console.error(e)
@@ -75,7 +87,6 @@ export default function Home({
     }
   }
   useEffect(() => {
-    getAddresses()
     getTransaction()
   }, [])
   return (
@@ -100,34 +111,19 @@ export default function Home({
             <span className="visually-hidden">Loading...</span>
           </div>
           : <></>}
-        <h1 className='title'> Make Transaction </h1>
-        <table className='table  m-2 p-2'>
-          <thead>
-            <tr>
-              <td scope='col'> Address </td>
-              <td scope='col'> P.Address </td>
-              <td scope='col'> Balance </td>
-              <td scope='col'> Send </td>
-            </tr>
-          </thead>
-          <tbody>
-            {addresses.map((e: any) => (
-              <tr key={e._id}>
-                <td>{e.pub_address}</td>
-                <td>{e.private_key.slice(0,4)+"..."+e.private_key.slice(-4)}</td>
-                <td>{e.balance}</td>
-                <td>
-                    <button className='btn btn-primary' onClick={() => makeTransaction(e.pub_address, 0.001)}>Send</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+        {/* an input box with a send button */}
+        <div className="input-group mb-3">
+          <input type="number" onChange={handleUserInputN} min="1" max="15" className="form-control" placeholder="1" aria-label="Place a value" aria-describedby="button-addon2" />
+          <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={makeTransaction} >Send</button>
+        </div>
 
         <h1 className='title'> Past Transactions </h1>
+        <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={deleteTransactions} >Delete Transactions</button>
         <table className='table  m-2 p-2'>
           <thead>
             <tr>
+              <td scope='col'> Timestamp </td>
               <td scope='col'> FROM </td>
               <td scope='col'> TO </td>
               <td scope='col'> amount </td>
@@ -137,8 +133,9 @@ export default function Home({
           <tbody>
             {transactions.map((e: any) => (
               <tr key={e._id}>
-                <td>{e.from.slice(0,4)+'...'+e.from.slice(-4)}</td>
-                <td>{e.to.slice(0, 4) + '...' +e.to.slice(-4)}</td>
+                <td>{e.timeStamp}</td>
+                <td>{e.from.slice(0, 4) + '...' + e.from.slice(-4)}</td>
+                <td>{e.to.slice(0, 4) + '...' + e.to.slice(-4)}</td>
                 <td>{e.value}</td>
                 <td>{e.transactionHash}</td>
               </tr>
