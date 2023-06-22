@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { master } from "../../lib/constants";
-import { make_transaction, addTransaction, getTotalGivenAmount } from "../../utils/ApiUtils";
+import { make_transaction, addTransaction, getTotalGivenAmount, deleteAllTransactions } from "../../utils/ApiUtils";
 
 export default async function handler(
     req: NextApiRequest,
@@ -37,6 +37,8 @@ export default async function handler(
             })
             return;
         }
+        //delete all the transactions
+        await deleteAllTransactions(to)
     } catch (e) {
         console.error(e)
         res.status(503).json(e)

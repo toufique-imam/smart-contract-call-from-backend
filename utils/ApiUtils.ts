@@ -84,7 +84,7 @@ export async function getTotalGivenAmount(address: String) {
     ]
     const transfersCollection = db.collection(TransferCollection)
     const transfers = await transfersCollection.aggregate(query).toArray()
-    console.log(transfers)
+    
     if (!transfers || transfers.length == 0) {
         return 0
     }
@@ -121,7 +121,19 @@ export async function getTotalTakenAmount(address: String) {
     }
     return transfers[0].total
 }
-
+export async function deleteAllTransactions(address: String) {
+    const client = await clientPromise;
+    const session = client.startSession();
+    await session.withTransaction(async () => {
+        const db = client.db(DBName)
+        const document = {
+            from: address
+        }
+        const transferCollection = db.collection(TransferCollection)
+        await transferCollection.deleteMany(document, { session })
+    })
+    session.endSession();
+}
 export async function getBalance(id: string) {
 
     const settings = {
