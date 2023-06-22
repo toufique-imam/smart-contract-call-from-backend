@@ -1,19 +1,8 @@
 import clientPromise from "../../lib/mongodb";
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Network, Alchemy } from "alchemy-sdk";
+import { DBName, TransferFromCollection } from "../../lib/constants";
+import { getBalance, getTotalGivenAmount } from "../../utils/ApiUtils";
 
-const DBName = "contract_transfer"
-const TransferFromCollection = "transfer_from"
-async function getBalance(id: string) {
-
-    const settings = {
-        apiKey: process.env.ALCHEMY_API_KEY,
-        network: Network.MATIC_MUMBAI,
-    };
-    const alchemy = new Alchemy(settings);
-    const response = await alchemy.core.getBalance(id);
-    return response.toString();
-}
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse,
@@ -30,6 +19,8 @@ export default async function handler(
             for (let i = 0; i < documents.length; i++) {
                 const document = documents[i]
                 const balance = await getBalance(document.pub_address)
+                const usedBalance = await getTotalGivenAmount(document.pub_address)
+                document.usedBalance = usedBalance
                 document.balance = balance
             }
             res.status(200).json({

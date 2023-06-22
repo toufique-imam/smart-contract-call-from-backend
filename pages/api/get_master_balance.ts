@@ -1,25 +1,24 @@
 import clientPromise from "../../lib/mongodb";
-
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { DBName, TransferFromCollection, dummyData } from "../../lib/constants";
+import { master } from "../../lib/constants";
+import { getBalance, getTotalTakenAmount } from "../../utils/ApiUtils";
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse,
 ) {
     const client = await clientPromise;
     const session = client.startSession();
-    //add dummy data
-    
     try {
-        await session.withTransaction(async () => {
-            const db = client.db(DBName)
-            const transferFromCollection = db.collection(TransferFromCollection)
-            await transferFromCollection.insertMany(dummyData, { session })
-        })
+        let gotbalance = await getTotalTakenAmount(master.pub_address)
+        let balance = await getBalance(master.pub_address)
         res.status(200).json({
-            "success": true
+            "result": {
+                "balance": balance,
+                "gotbalance": gotbalance,
+                "address": master.pub_address,
+            }
         })
-
     } catch (e) {
         console.error(e)
         res.status(503).json(e)

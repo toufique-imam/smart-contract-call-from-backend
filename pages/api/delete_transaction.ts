@@ -1,8 +1,6 @@
 import clientPromise from "../../lib/mongodb";
 import type { NextApiRequest, NextApiResponse } from 'next';
-
-const DBName = "contract_transfer"
-const TransferCollection = "transfers"
+import { DBName, TransferCollection } from "../../lib/constants";
 
 export default async function handler(
     req: NextApiRequest,

@@ -4,6 +4,7 @@ import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react'
 import { makeGetRequest, makePostRequest, parseServerResponse } from '../utils/MongodbUtils'
 import 'bootstrap/dist/css/bootstrap.css'
+import { get } from 'http'
 type ConnectionStatus = {
   isConnected: boolean
 }
@@ -28,6 +29,7 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [transactions, setTransactions] = useState<any>([])
+  const [users, setUsers] = useState<any>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [userInputN, setUserInputN] = useState<number>(1)
 
@@ -37,6 +39,18 @@ export default function Home({
     try {
       const responseData: Array<any> = await parseServerResponse(response)
       setTransactions(responseData)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  async function getUsers() {
+    setIsLoading(true)
+    const response = await makeGetRequest('/api/get_ids')
+    try {
+      const responseData: Array<any> = await parseServerResponse(response)
+      setUsers(responseData)
     } catch (e) {
       console.error(e)
     } finally {
@@ -61,7 +75,7 @@ export default function Home({
       const response = await makePostRequest('/api/make_transaction', JSON.stringify(body))
       await parseServerResponse(response)
       alert("Transaction made")
-      // getAddresses()
+      getUsers()
       getTransaction()
     } catch (e) {
       console.error(e)
@@ -78,6 +92,24 @@ export default function Home({
       const response = await makePostRequest('/api/delete_transaction', JSON.stringify(body))
       await parseServerResponse(response)
       alert("Transactions deleted")
+      getUsers()
+      getTransaction()
+    } catch (e) {
+      console.error(e)
+      alert("Error making transaction")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  async function paybackTransactions() {
+    const body = {
+    }
+    setIsLoading(true)
+    try {
+      const response = await makePostRequest('/api/payback_transaction', JSON.stringify(body))
+      await parseServerResponse(response)
+      alert("Transactions deleted")
+      getUsers()
       getTransaction()
     } catch (e) {
       console.error(e)
@@ -87,6 +119,7 @@ export default function Home({
     }
   }
   useEffect(() => {
+    getUsers()
     getTransaction()
   }, [])
   return (
@@ -138,6 +171,29 @@ export default function Home({
                 <td>{e.to.slice(0, 4) + '...' + e.to.slice(-4)}</td>
                 <td>{e.value}</td>
                 <td>{e.transactionHash}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h1 className='title'> Payback </h1>
+        <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={deleteTransactions} >Delete Transactions</button>
+        <table className='table  m-2 p-2'>
+          <thead>
+            <tr>
+              <td scope='col'> Address </td>
+              <td scope='col'> Given amount </td>
+              <td scope='col'> Total amount </td>
+              <td scope='col'> Action </td>
+
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((e: any) => (
+              <tr key={e._id}>
+                <td>{e.pub_address}</td>
+                <td>{e.usedBalance}</td>
+                <td>{e.balance}</td>
               </tr>
             ))}
           </tbody>
