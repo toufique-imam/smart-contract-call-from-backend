@@ -1,3 +1,9 @@
+## Smart contract backend example
+- mongodb integration
+- smart contract function call from backend
+- nextjs serverless function
+
+
 ## Example app using MongoDB
 
 [MongoDB](https://www.mongodb.com/) is a general purpose, document-based, distributed database built for modern application developers and for the cloud era. This example will show you how to connect to and use MongoDB as your backend for your Next.js app.
